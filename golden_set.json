@@ -1,0 +1,92 @@
+[
+  {
+    "question": "How many employees are there in total?",
+    "expected": "5",
+    "expected_contains": ["5"],
+    "category": "simple_count"
+  },
+  {
+    "question": "What is the total salary of all employees?",
+    "expected": "350000",
+    "expected_contains": ["350000"],
+    "category": "aggregation"
+  },
+  {
+    "question": "What is the average salary across all employees?",
+    "expected": "70000",
+    "expected_contains": ["70000"],
+    "category": "aggregation"
+  },
+  {
+    "question": "What is the median salary?",
+    "expected": "70000",
+    "expected_contains": ["70000"],
+    "category": "aggregation"
+  },
+  {
+    "question": "Who is the highest-paid employee?",
+    "expected": "Arjun Mehta (80000)",
+    "expected_contains": ["Arjun"],
+    "category": "lookup"
+  },
+  {
+    "question": "Who is the lowest-paid employee?",
+    "expected": "Neha Singh (60000)",
+    "expected_contains": ["Neha"],
+    "category": "lookup"
+  },
+  {
+    "question": "What is Priya Patel's salary?",
+    "expected": "65000",
+    "expected_contains": ["65000"],
+    "category": "lookup"
+  },
+  {
+    "question": "How many departments are there?",
+    "expected": "4 (Engineering, Marketing, Sales, HR)",
+    "expected_contains": ["4"],
+    "category": "distinct_count"
+  },
+  {
+    "question": "How many employees are in the Engineering department?",
+    "expected": "2",
+    "expected_contains": ["Engineering", "2"],
+    "category": "grouping"
+  },
+  {
+    "question": "What is the average salary in the Engineering department?",
+    "expected": "77500",
+    "expected_contains": ["77500"],
+    "category": "grouping"
+  },
+  {
+    "question": "Which department has the highest average salary?",
+    "expected": "Engineering (average 77500)",
+    "expected_contains": ["Engineering"],
+    "category": "grouping"
+  },
+  {
+    "question": "Which employees earn more than 70000?",
+    "expected": "Amit Sharma (75000) and Arjun Mehta (80000)",
+    "expected_contains": ["Amit", "Arjun"],
+    "category": "filtering"
+  },
+  {
+    "question": "How many employees joined in 2024?",
+    "expected": "3 (Amit, Priya, Neha)",
+    "expected_contains": ["3"],
+    "category": "date_filter_triggers_self_correction"
+  },
+  {
+    "question": "Who joined the company most recently?",
+    "expected": "Neha Singh (2024-03-05)",
+    "expected_contains": ["Neha"],
+    "category": "date_sort_triggers_self_correction"
+  },
+  {
+    "question": "Who joined the company earliest?",
+    "expected": "Arjun Mehta (2023-09-12)",
+    "expected_contains": ["Arjun"],
+    "category": "date_sort_triggers_self_correction"
+  }
+]

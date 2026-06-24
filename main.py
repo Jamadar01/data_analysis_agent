@@ -71,39 +71,55 @@ def data_analysis_agent(messages: list) -> str:
     return tool_call
     # return response.choices[0].message.content.strip()
 
-user_qt=input("Ask to an agent:")
-Message_queue=[
-                {
-                "role": "system", "content": f"""You are a Python code generator for a data analysis agent.
-                RULES:
-                - Output ONLY raw, executable Python code. Nothing else.
-                - Do NOT include explanations, comments, or any text before or after the code.
-                - Do NOT wrap the code in markdown fences (no ``` or ```python).
-                - The code MUST print its final result using print(), since only printed output is captured.
-                - If a previous attempt returned an error, fix the code and return the corrected version.
-                You are analyzing a pandas DataFrame called `df` that is already loaded.
-                    Here is its structure:
+def answer():
+    user_qt=input("Ask to an agent:")
+    Message_queue=[
+                    {
+                    "role": "system", "content": f"""You are a Python code generator for a data analysis agent.
+                    RULES:
+                    - Output ONLY raw, executable Python code. Nothing else.
+                    - Do NOT include explanations, comments, or any text before or after the code.
+                    - Do NOT wrap the code in markdown fences (no ``` or ```python).
+                    - The code MUST print its final result using print(), since only printed output is captured.
+                    - If a previous attempt returned an error, fix the code and return the corrected version.
+                    You are analyzing a pandas DataFrame called `df` that is already loaded.
+                        Here is its structure:
 
-                    Columns and types:
-                    {df.dtypes}
+                        Columns and types:
+                        {df.dtypes}
 
-                    First rows:
-                    {df.head().to_string()}
+                        First rows:
+                        {df.head().to_string()}
 
-                    Write pandas code using the existing `df` to answer the user's question.
-                """},
-                {"role": "user", "content": user_qt}
-            ]
-for i in range(0,5):
-    assistan_message=data_analysis_agent(Message_queue)
-    if not assistan_message.tool_calls:
-        print(assistan_message.content)
-        break
-    tool_call=assistan_message.tool_calls[0]
-    Message_queue.append( assistan_message)
-    args=json.loads(tool_call.function.arguments)
-    code = args["code"]
-    result = run_code(code)
-    print("epoch",i,"->",result)
-    Message_queue.append({"role": "tool", "tool_call_id":tool_call.id, "content": result})
-    
+                        Write pandas code using the existing `df` to answer the user's question.
+                    """},
+                    {"role": "user", "content": user_qt}
+                ]
+    for i in range(0,5):
+        assistan_message=data_analysis_agent(Message_queue)
+        if not assistan_message.tool_calls:
+            print(assistan_message.content)
+            break
+        tool_call=assistan_message.tool_calls[0]
+        Message_queue.append( assistan_message)
+        args=json.loads(tool_call.function.arguments)
+        code = args["code"]
+        result = run_code(code)
+        print("epoch",i,"->",result)
+        Message_queue.append({"role": "tool", "tool_call_id":tool_call.id, "content": result})
+    return result
+        
+answer()
+# testing_set
+# with open("golden_set.json") as f:
+#     data = json.load(f)
+
+# passes = 0
+# for i in data:
+#     result = answer(i["question"])
+#     result_norm = result.lower().replace(",", "")
+#     if all(s.lower() in result_norm for s in i["expected_contains"]):
+#         passes += 1
+
+# print("Accuracy:", passes / len(data))
+        
