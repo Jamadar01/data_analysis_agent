@@ -5,11 +5,29 @@ from dotenv import load_dotenv
 load_dotenv()  
 from openai import OpenAI
 import pandas as pd
+import json
 
 openai_api_key = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=openai_api_key)
 
 df=pd.read_csv("sample_employee_data.csv")
+tools = [{
+    "type": "function",
+    "function": {
+        "name": "run_code",
+        "description": "Executes Python code and returns its printed output",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "description": "The Python code to execute"
+                }
+            },
+            "required": ["code"]
+        }
+    }
+}]
 
 def run_code(code: str) -> str:
     """
@@ -45,9 +63,13 @@ def data_analysis_agent(messages: list) -> str:
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=messages,
+        tools=tools,
         max_tokens=1000
     )
-    return response.choices[0].message.content.strip()
+    tool_call=response.choices[0].message
+    
+    return tool_call
+    # return response.choices[0].message.content.strip()
 
 user_qt=input("Ask to an agent:")
 Message_queue=[
@@ -73,25 +95,15 @@ Message_queue=[
                 {"role": "user", "content": user_qt}
             ]
 for i in range(0,5):
-    code=data_analysis_agent(Message_queue)
-    if code.startswith("```python"):
-        code=code.split("```python")[1].strip("`")
-    elif code.startswith("```"):
-        code=code.strip("`")
+    assistan_message=data_analysis_agent(Message_queue)
+    if not assistan_message.tool_calls:
+        print(assistan_message.content)
+        break
+    tool_call=assistan_message.tool_calls[0]
+    Message_queue.append( assistan_message)
+    args=json.loads(tool_call.function.arguments)
+    code = args["code"]
     result = run_code(code)
     print("epoch",i,"->",result)
-    if result.startswith("Error"):
-        Message_queue.append({"role":"assistant","content": code})
-        Message_queue.append({"role":"user","content": result})
-    elif result.strip()=="":
-        Message_queue.append({"role":"assistant","content": code})
-        Message_queue.append({"role":"user","content": "Code ran but printed nothing — make sure to print() the result."})
-    else:
-        break
-
-if result.startswith("Error"):
-    print("Failure: Couldn Solve the Error:",result)
-elif result.strip()=="":
-    print("Failure: Coudlnt able to print")
-
-print(result)
+    Message_queue.append({"role": "tool", "tool_call_id":tool_call.id, "content": result})
+    
